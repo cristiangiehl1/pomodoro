@@ -14,14 +14,14 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const protectedPaths = ["/", "/stats", "/settings"];
-      const isProtected = protectedPaths.some(
+      const publicPaths = ["/login", "/api/auth"];
+      const isPublic = publicPaths.some(
         (path) =>
           nextUrl.pathname === path ||
           nextUrl.pathname.startsWith(path + "/")
       );
 
-      if (isProtected && !isLoggedIn) {
+      if (!isPublic && !isLoggedIn) {
         return Response.redirect(new URL("/login", nextUrl.origin));
       }
       return true;
