@@ -1,4 +1,5 @@
 import type { CreateFocusSession } from "@/features/stats/schemas";
+import type { focusSessions } from "@/db/schema";
 
 export async function createFocusSession(
   payload: CreateFocusSession
@@ -14,10 +15,12 @@ export async function createFocusSession(
   return res.json();
 }
 
-export async function fetchFocusSessions(): Promise<unknown[]> {
+export async function fetchFocusSessions(): Promise<
+  (typeof focusSessions.$inferSelect)[]
+> {
   const res = await fetch("/api/focus-sessions");
   if (!res.ok) {
     throw new Error(`Failed to fetch focus sessions: ${res.status}`);
   }
-  return res.json() as Promise<unknown[]>;
+  return res.json() as Promise<(typeof focusSessions.$inferSelect)[]>;
 }

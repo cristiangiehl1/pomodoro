@@ -48,23 +48,27 @@ export async function POST(request: NextRequest) {
 
   const { startedAt, endedAt, durationSeconds, taskId } = parsed.data;
 
-  const inserted = await db
-    .insert(focusSessions)
-    .values({
-      userId,
-      startedAt: new Date(startedAt),
-      endedAt: new Date(endedAt),
-      durationSeconds,
-      taskId: taskId ?? null,
-    })
-    .returning();
+  const inserted = await db.transaction(async (tx) => {
+    const rows = await tx
+      .insert(focusSessions)
+      .values({
+        userId,
+        startedAt: new Date(startedAt),
+        endedAt: new Date(endedAt),
+        durationSeconds,
+        taskId: taskId ?? null,
+      })
+      .returning();
 
-  if (taskId) {
-    await db
-      .update(tasks)
-      .set({ completedPomodoros: sql`${tasks.completedPomodoros} + 1` })
-      .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)));
-  }
+    if (taskId) {
+      await tx
+        .update(tasks)
+        .set({ completedPomodoros: sql`${tasks.completedPomodoros} + 1` })
+        .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)));
+    }
+
+    return rows;
+  });
 
   return NextResponse.json(inserted[0], { status: 201 });
 }

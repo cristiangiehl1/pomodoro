@@ -9,6 +9,6 @@ export const focusSessions = pgTable("focus_sessions", {
     .references(() => users.id, { onDelete: "cascade" }),
   taskId: uuid("task_id").references(() => tasks.id, { onDelete: "set null" }),
   startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
-  endedAt: timestamp("ended_at", { withTimezone: true }),
-  durationSeconds: integer("duration_seconds"),
+  endedAt: timestamp("ended_at", { withTimezone: true }).notNull(),
+  durationSeconds: integer("duration_seconds").notNull(),
 });
