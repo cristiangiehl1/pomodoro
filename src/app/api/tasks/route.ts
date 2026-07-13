@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/get-session";
 import { db } from "@/db/client";
 import { tasks } from "@/db/schema/tasks";
 import { eq, asc, max } from "drizzle-orm";
 import { createTaskSchema } from "@/features/tasks/schemas";
 
 export async function GET() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -23,7 +23,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

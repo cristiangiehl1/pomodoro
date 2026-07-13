@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/get-session";
 import { env } from "@/lib/env";
 import { exchangeCodeForToken } from "@/features/music/logic/spotify-auth";
 import { cookies } from "next/headers";
@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export async function GET(request: NextRequest) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) {
     return NextResponse.redirect(new URL("/?spotify_error=unauthorized", APP_URL));
   }

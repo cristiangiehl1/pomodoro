@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/get-session";
 import { env } from "@/lib/env";
 import { buildAuthorizeUrl } from "@/features/music/logic/spotify-auth";
 import { cookies } from "next/headers";
 import { randomBytes } from "crypto";
 
 export async function GET() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
