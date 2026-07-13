@@ -1,11 +1,11 @@
 import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
-import { users } from "./auth";
+import { user } from "./auth";
 
 export const musicPresets = pgTable("music_presets", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
   kind: text("kind").notNull(),
   ref: text("ref").notNull(),
   label: text("label").notNull(),

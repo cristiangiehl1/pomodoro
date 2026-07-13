@@ -1,21 +1,17 @@
-import NextAuth from "next-auth";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import { db } from "@/db/client";
-import {
-  users,
-  accounts,
-  sessions,
-  verificationTokens,
-} from "@/db/schema/auth";
-import { authConfig } from "./auth.config";
+import { env } from "@/lib/env";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  ...authConfig,
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }),
-  session: { strategy: "database" },
+export const auth = betterAuth({
+  secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
+  database: drizzleAdapter(db, { provider: "pg" }),
+  emailAndPassword: { enabled: true },
+  socialProviders: {
+    google: { clientId: env.GOOGLE_CLIENT_ID ?? "", clientSecret: env.GOOGLE_CLIENT_SECRET ?? "" },
+    github: { clientId: env.GITHUB_CLIENT_ID ?? "", clientSecret: env.GITHUB_CLIENT_SECRET ?? "" },
+  },
+  plugins: [nextCookies()], // MUST be last
 });

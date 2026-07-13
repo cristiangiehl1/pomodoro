@@ -1,8 +1,8 @@
 import { pgTable, integer, boolean, text } from "drizzle-orm/pg-core";
-import { users } from "./auth";
+import { user } from "./auth";
 
 export const pomodoroSettings = pgTable("pomodoro_settings", {
-  userId: text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  userId: text("user_id").primaryKey().references(() => user.id, { onDelete: "cascade" }),
   focusMinutes: integer("focus_minutes").notNull().default(25),
   shortBreakMinutes: integer("short_break_minutes").notNull().default(5),
   longBreakMinutes: integer("long_break_minutes").notNull().default(15),
