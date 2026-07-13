@@ -29,4 +29,8 @@ describe("formatTime", () => {
   it("formata 300 segundos como 05:00", () => {
     expect(formatTime(300)).toBe("05:00");
   });
+
+  it("trata negativos como 00:00", () => {
+    expect(formatTime(-1)).toBe("00:00");
+  });
 });

@@ -55,6 +55,22 @@ export function Timer({ activeTaskId }: TimerProps) {
   // Track when the current focus block started (for mutation payload)
   const focusStartedAtRef = useRef<string | null>(null);
 
+  // Refs to read latest values inside effects/callbacks without retriggering them
+  const configRef = useRef(config);
+  const timerStateRef = useRef(timerState);
+  const activeTaskIdRef = useRef(activeTaskId);
+  const volumeRef = useRef(volume);
+  const autoStartBreaksRef = useRef(autoStartBreaks);
+  const autoStartFocusRef = useRef(autoStartFocus);
+
+  // Keep refs in sync on every render
+  configRef.current = config;
+  timerStateRef.current = timerState;
+  activeTaskIdRef.current = activeTaskId;
+  volumeRef.current = volume;
+  autoStartBreaksRef.current = autoStartBreaks;
+  autoStartFocusRef.current = autoStartFocus;
+
   // Notification permission — lazy-request on first Start
   const notifPermissionRef = useRef<NotificationPermission | null>(null);
 
@@ -84,11 +100,20 @@ export function Timer({ activeTaskId }: TimerProps) {
     }
   }, []);
 
+  // Stable refs for countdown callbacks so handlePhaseComplete can call them
+  // without needing to list them as deps (they are assigned once countdown mounts)
+  const startRef = useRef<(durationSeconds: number) => void>(() => {});
+  const resetRef = useRef<(durationSeconds: number) => void>(() => {});
+
   const handlePhaseComplete = useCallback(() => {
-    const completedPhase = timerState.phase;
+    // All values are read from refs — no stale closures, no extraneous re-creations
+    const currentTimerState = timerStateRef.current;
+    const currentConfig = configRef.current;
+
+    const completedPhase = currentTimerState.phase;
 
     // Play beep
-    playBeep(volume);
+    playBeep(volumeRef.current);
 
     // Fire notification
     fireNotification(completedPhase);
@@ -96,97 +121,115 @@ export function Timer({ activeTaskId }: TimerProps) {
     // Record focus session if applicable
     if (completedPhase === "focus" && focusStartedAtRef.current) {
       const endedAt = new Date().toISOString();
-      const durationSeconds = phaseDurationSeconds("focus", config);
+      // durationSeconds is the configured focus length (intentional: a completed pomodoro
+      // equals one full focus interval of actual focused time; using wall-clock elapsed
+      // would wrongly include paused time)
+      const durationSeconds = phaseDurationSeconds("focus", currentConfig);
       createFocusSession.mutate({
         startedAt: focusStartedAtRef.current,
         endedAt,
         durationSeconds,
-        taskId: activeTaskId ?? null,
+        taskId: activeTaskIdRef.current ?? null,
       });
+      // Clear so the next focus block captures a fresh start time
       focusStartedAtRef.current = null;
     }
 
     // Advance to next phase
-    const nextState = nextPhase(timerState, config);
+    const nextState = nextPhase(currentTimerState, currentConfig);
     setTimerState(nextState);
 
     // Decide whether to auto-start next phase
-    const nextDuration = phaseDurationSeconds(nextState.phase, config);
+    const nextDuration = phaseDurationSeconds(nextState.phase, currentConfig);
     const shouldAutoStart =
-      nextState.phase === "focus" ? autoStartFocus : autoStartBreaks;
+      nextState.phase === "focus"
+        ? autoStartFocusRef.current
+        : autoStartBreaksRef.current;
 
     if (shouldAutoStart) {
       if (nextState.phase === "focus") {
+        // Capture fresh start time for the auto-started focus block
         focusStartedAtRef.current = new Date().toISOString();
       }
-      countdown.start(nextDuration);
+      startRef.current(nextDuration);
     } else {
-      countdown.reset(nextDuration);
+      resetRef.current(nextDuration);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timerState, config, volume, activeTaskId, autoStartBreaks, autoStartFocus, fireNotification]);
+  }, [fireNotification, createFocusSession]);
+  // fireNotification and createFocusSession are stable (useCallback / React Query);
+  // all other values are read from refs (configRef, timerStateRef, etc.) rather than
+  // captured as closure variables, so no stale-closure risk.
 
-  const countdown = useCountdown({ onComplete: handlePhaseComplete });
+  const { secondsLeft, isRunning, start, pause, reset } = useCountdown({ onComplete: handlePhaseComplete });
+
+  // Keep startRef/resetRef pointing at the latest stable callbacks from useCountdown
+  startRef.current = start;
+  resetRef.current = reset;
 
   // Initialise secondsLeft when config changes (e.g. settings load)
   // Only reset if the timer is not running
-  const configRef = useRef(config);
+  const prevConfigRef = useRef(config);
   useEffect(() => {
-    const prevConfig = configRef.current;
-    configRef.current = config;
-    // Only reset if not running and config actually changed
-    if (!countdown.isRunning) {
-      const prevDuration = phaseDurationSeconds(timerState.phase, prevConfig);
-      const newDuration = phaseDurationSeconds(timerState.phase, config);
-      if (prevDuration !== newDuration || countdown.secondsLeft === 0) {
-        countdown.reset(newDuration);
+    const prevConfig = prevConfigRef.current;
+    prevConfigRef.current = config;
+    if (!isRunning) {
+      const prevDuration = phaseDurationSeconds(timerStateRef.current.phase, prevConfig);
+      const newDuration = phaseDurationSeconds(timerStateRef.current.phase, config);
+      if (prevDuration !== newDuration || secondsLeft === 0) {
+        reset(newDuration);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.focusMinutes, config.shortBreakMinutes, config.longBreakMinutes]);
+  }, [config.focusMinutes, config.shortBreakMinutes, config.longBreakMinutes, isRunning, secondsLeft, reset]);
 
-  // Sync timer state change → reset countdown if not running
+  // Sync timer state phase change → reset countdown if not running
   const prevPhaseRef = useRef(timerState.phase);
   useEffect(() => {
     if (prevPhaseRef.current !== timerState.phase) {
       prevPhaseRef.current = timerState.phase;
-      if (!countdown.isRunning) {
-        countdown.reset(phaseDurationSeconds(timerState.phase, config));
+      // Clear focusStartedAt whenever a new focus phase begins (covers manual skip)
+      if (timerState.phase === "focus") {
+        focusStartedAtRef.current = null;
+      }
+      if (!isRunning) {
+        reset(phaseDurationSeconds(timerState.phase, configRef.current));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timerState.phase]);
+  }, [timerState.phase, isRunning, reset]);
 
   const handleStart = useCallback(async () => {
     await requestNotifPermission();
-    if (timerState.phase === "focus") {
+    // Only capture start time when beginning a NEW focus block, not on resume
+    if (timerStateRef.current.phase === "focus" && focusStartedAtRef.current === null) {
       focusStartedAtRef.current = new Date().toISOString();
     }
-    countdown.start(countdown.secondsLeft > 0 ? countdown.secondsLeft : phaseDurationSeconds(timerState.phase, config));
-  }, [countdown, timerState.phase, config, requestNotifPermission]);
+    start(secondsLeft > 0 ? secondsLeft : phaseDurationSeconds(timerStateRef.current.phase, configRef.current));
+  }, [start, secondsLeft, requestNotifPermission]);
 
   const handlePause = useCallback(() => {
-    countdown.pause();
-  }, [countdown]);
+    pause();
+  }, [pause]);
 
   const handleReset = useCallback(() => {
     focusStartedAtRef.current = null;
-    countdown.reset(phaseDurationSeconds(timerState.phase, config));
-  }, [countdown, timerState.phase, config]);
+    reset(phaseDurationSeconds(timerStateRef.current.phase, configRef.current));
+  }, [reset]);
 
   const handleSkip = useCallback(() => {
     focusStartedAtRef.current = null;
-    countdown.reset(0);
-    const nextState = nextPhase(timerState, config);
+    const nextState = nextPhase(timerStateRef.current, configRef.current);
     setTimerState(nextState);
-    const nextDuration = phaseDurationSeconds(nextState.phase, config);
-    countdown.reset(nextDuration);
-  }, [countdown, timerState, config]);
+    const nextDuration = phaseDurationSeconds(nextState.phase, configRef.current);
+    reset(nextDuration);
+  }, [reset]);
 
+  // Show 00:00 at completion (secondsLeft===0 and timer just stopped);
+  // show remaining time while running or paused; show full phase duration at idle start
   const displaySeconds =
-    countdown.secondsLeft > 0
-      ? countdown.secondsLeft
-      : phaseDurationSeconds(timerState.phase, config);
+    secondsLeft > 0
+      ? secondsLeft
+      : isRunning
+        ? 0
+        : phaseDurationSeconds(timerState.phase, config);
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -197,7 +240,7 @@ export function Timer({ activeTaskId }: TimerProps) {
         {formatTime(displaySeconds)}
       </p>
       <TimerControls
-        isRunning={countdown.isRunning}
+        isRunning={isRunning}
         onStart={handleStart}
         onPause={handlePause}
         onReset={handleReset}
