@@ -16,8 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pomodoro LoFi",
-  description: "A Pomodoro timer with lofi music to help you focus.",
+  title: {
+    template: "%s · Pomodoro Lo‑Fi",
+    default: "Pomodoro Lo‑Fi",
+  },
+  description:
+    "Timer Pomodoro com música lo‑fi e visual retro synthwave para manter o foco.",
+  keywords: ["pomodoro", "foco", "lofi", "timer", "produtividade"],
 };
 
 export default function RootLayout({
@@ -27,8 +32,8 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="pt-BR"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col">
         <SessionProvider>
