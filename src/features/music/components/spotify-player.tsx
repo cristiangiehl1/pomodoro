@@ -28,10 +28,6 @@ interface SpotifyPlaybackState {
   };
 }
 
-interface SpotifyReadyEvent {
-  device_id: string;
-}
-
 interface SpotifySDK {
   Player: new (options: {
     name: string;
@@ -97,7 +93,7 @@ export function SpotifyPlayer() {
       volume: 0.5,
     });
 
-    player.addListener("ready", (_event) => {
+    player.addListener("ready", () => {
       setPlayerReady(true);
     });
 

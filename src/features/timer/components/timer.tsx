@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   initialState,
   nextPhase,
@@ -62,14 +62,6 @@ export function Timer({ activeTaskId }: TimerProps) {
   const volumeRef = useRef(volume);
   const autoStartBreaksRef = useRef(autoStartBreaks);
   const autoStartFocusRef = useRef(autoStartFocus);
-
-  // Keep refs in sync on every render
-  configRef.current = config;
-  timerStateRef.current = timerState;
-  activeTaskIdRef.current = activeTaskId;
-  volumeRef.current = volume;
-  autoStartBreaksRef.current = autoStartBreaks;
-  autoStartFocusRef.current = autoStartFocus;
 
   // Notification permission — lazy-request on first Start
   const notifPermissionRef = useRef<NotificationPermission | null>(null);
@@ -162,19 +154,31 @@ export function Timer({ activeTaskId }: TimerProps) {
 
   const { secondsLeft, isRunning, start, pause, reset } = useCountdown({ onComplete: handlePhaseComplete });
 
-  // Keep startRef/resetRef pointing at the latest stable callbacks from useCountdown
-  startRef.current = start;
-  resetRef.current = reset;
+  // Keep all refs in sync after every render — useLayoutEffect runs synchronously
+  // after the DOM update, before any effect fires, so refs are fresh when effects
+  // and event-handler callbacks read `.current`.
+  useLayoutEffect(() => {
+    configRef.current = config;
+    timerStateRef.current = timerState;
+    activeTaskIdRef.current = activeTaskId;
+    volumeRef.current = volume;
+    autoStartBreaksRef.current = autoStartBreaks;
+    autoStartFocusRef.current = autoStartFocus;
+    startRef.current = start;
+    resetRef.current = reset;
+  });
 
   // Initialise secondsLeft when config changes (e.g. settings load)
-  // Only reset if the timer is not running
-  const prevConfigRef = useRef(config);
+  // Only reset if the timer is not running.
+  // prevConfigRef tracks the previous config snapshot so we can compare durations.
+  const prevConfigRef = useRef<TimerConfig>(config);
   useEffect(() => {
     const prevConfig = prevConfigRef.current;
-    prevConfigRef.current = config;
+    const currentConfig = configRef.current;
+    prevConfigRef.current = currentConfig;
     if (!isRunning) {
       const prevDuration = phaseDurationSeconds(timerStateRef.current.phase, prevConfig);
-      const newDuration = phaseDurationSeconds(timerStateRef.current.phase, config);
+      const newDuration = phaseDurationSeconds(timerStateRef.current.phase, currentConfig);
       if (prevDuration !== newDuration || secondsLeft === 0) {
         reset(newDuration);
       }
