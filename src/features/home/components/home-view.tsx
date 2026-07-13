@@ -10,7 +10,7 @@ export function HomeView() {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 
   return (
-    <main className="relative z-10 flex flex-col gap-4 px-4 pb-8 sm:px-6">
+    <main className="relative z-10 flex flex-col gap-4 px-4 pt-6 pb-8 sm:px-6">
       {/* Main grid: timer + tasks side by side on desktop */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         {/* Timer — prominent center column on desktop */}
