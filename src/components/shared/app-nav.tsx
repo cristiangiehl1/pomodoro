@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -14,6 +14,7 @@ const navLinks = [
 
 export function AppNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -90,7 +91,7 @@ export function AppNav() {
 
         {/* Sign out */}
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={async () => { await signOut(); router.push("/login"); }}
           className="text-sm font-medium text-[rgba(255,255,255,0.5)] hover:text-[#ff2e97] transition-colors duration-200 cursor-pointer"
         >
           Sair
