@@ -2,13 +2,13 @@ import { z } from "zod";
 import { tasks } from "@/db/schema/tasks";
 
 export const createTaskSchema = z.object({
-  title: z.string().min(1).trim(),
+  title: z.string().trim().min(1),
   estimatedPomodoros: z.number().int().min(1).max(99).default(1),
 });
 
 export const updateTaskSchema = z
   .object({
-    title: z.string().min(1).trim().optional(),
+    title: z.string().trim().min(1).optional(),
     estimatedPomodoros: z.number().int().min(1).max(99).optional(),
     completedPomodoros: z.number().int().min(0).optional(),
     done: z.boolean().optional(),
