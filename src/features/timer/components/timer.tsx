@@ -186,8 +186,8 @@ export function Timer({ activeTaskId }: TimerProps) {
   useEffect(() => {
     if (prevPhaseRef.current !== timerState.phase) {
       prevPhaseRef.current = timerState.phase;
-      // Clear focusStartedAt whenever a new focus phase begins (covers manual skip)
-      if (timerState.phase === "focus") {
+      // Only clear if no focus block was auto-started (manual phase advance)
+      if (timerState.phase === "focus" && !isRunning) {
         focusStartedAtRef.current = null;
       }
       if (!isRunning) {
