@@ -51,7 +51,7 @@ export function parseYoutubeId(input: string): string | null {
   }
 
   // youtube.com/embed/<id>
-  const embedMatch = url.pathname.match(/^\/embed\/([A-Za-z0-9_-]{11})/);
+  const embedMatch = url.pathname.match(/^\/embed\/([A-Za-z0-9_-]{11})(?:[/?]|$)/);
   if (embedMatch) {
     return embedMatch[1];
   }

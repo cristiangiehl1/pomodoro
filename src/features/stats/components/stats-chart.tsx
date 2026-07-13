@@ -41,7 +41,6 @@ export function StatsChart() {
   const chartData = data.map((d) => ({
     date: d.date,
     minutos: Math.round(d.focusSeconds / 60),
-    sessoes: d.sessions,
   }));
 
   return (

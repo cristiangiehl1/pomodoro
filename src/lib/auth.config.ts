@@ -13,6 +13,7 @@ export const authConfig = {
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
+      if (nextUrl.pathname.startsWith("/api/")) return true;
       const isLoggedIn = !!auth?.user;
       const publicPaths = ["/login", "/api/auth"];
       const isPublic = publicPaths.some(

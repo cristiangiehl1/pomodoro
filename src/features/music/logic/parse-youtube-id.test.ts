@@ -84,4 +84,10 @@ describe("parseYoutubeId", () => {
   it("retorna null para URL do YouTube sem parâmetro v", () => {
     expect(parseYoutubeId("https://www.youtube.com/channel/UCxxxxxx")).toBeNull();
   });
+
+  it("retorna null para URL embed/ com id de 12 caracteres", () => {
+    expect(
+      parseYoutubeId("https://www.youtube.com/embed/dQw4w9WgXcQX")
+    ).toBeNull();
+  });
 });

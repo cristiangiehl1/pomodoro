@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const createFocusSessionSchema = z.object({
-  startedAt: z.string().datetime(),
-  endedAt: z.string().datetime(),
+  startedAt: z.iso.datetime(),
+  endedAt: z.iso.datetime(),
   durationSeconds: z.number().int().positive(),
   taskId: z.string().uuid().optional().nullable(),
 });
