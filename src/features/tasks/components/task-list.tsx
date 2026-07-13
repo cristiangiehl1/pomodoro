@@ -60,13 +60,13 @@ export function TaskList({ activeTaskId, onSelectActive }: TaskListProps) {
             min={1}
             max={99}
             value={estimatedPomodoros}
-            onChange={(e) => setEstimatedPomodoros(Number(e.target.value))}
+            onChange={(e) => { const n = Number(e.target.value); setEstimatedPomodoros(Number.isNaN(n) ? 1 : Math.max(1, Math.min(99, n))); }}
             disabled={createMutation.isPending}
             className="w-24"
           />
         </div>
 
-        <Button type="submit" disabled={createMutation.isPending || !title.trim()}>
+        <Button type="submit" disabled={createMutation.isPending || !title.trim() || estimatedPomodoros < 1}>
           {createMutation.isPending ? "Adicionando…" : "Adicionar tarefa"}
         </Button>
       </form>
