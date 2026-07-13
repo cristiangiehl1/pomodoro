@@ -64,8 +64,9 @@ export async function GET() {
         maxAge: expiresIn,
       });
 
-      if (newRefreshToken) {
-        cookieStore.set("spotify_refresh_token", newRefreshToken, {
+      const tokenToStore = newRefreshToken ?? refreshToken;
+      if (tokenToStore) {
+        cookieStore.set("spotify_refresh_token", tokenToStore, {
           ...cookieOptions,
           maxAge: 60 * 60 * 24 * 30,
         });

@@ -97,9 +97,7 @@ export function SpotifyPlayer() {
       volume: 0.5,
     });
 
-    player.addListener("ready", (event) => {
-      const { device_id } = event as SpotifyReadyEvent;
-      console.log("Spotify player ready, device ID:", device_id);
+    player.addListener("ready", (_event) => {
       setPlayerReady(true);
     });
 
