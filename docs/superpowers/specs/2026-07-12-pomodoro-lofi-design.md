@@ -2,6 +2,11 @@
 
 Data: 2026-07-12
 
+> **Nota (2026-07-26):** o tema **retro synthwave** e a estrutura por `features/`
+> descritos abaixo foram substituídos pelo redesign **Ghibli lo-fi** e pela
+> reestruturação em camadas. Ver
+> `docs/superpowers/specs/2026-07-26-ghibli-restructure-design.md`.
+
 ## Objetivo
 
 App full-stack de estudo usando o método Pomodoro, com timer configurável,

@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pomodoro Lo‑Fi 🍃
 
-## Getting Started
+App full‑stack de foco pelo método Pomodoro — timer configurável, lista de
+tarefas, estatísticas e player de música lo‑fi (YouTube + Spotify), com
+ambientação visual **lo‑fi + Studio Ghibli**.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router) + **TypeScript**, gerenciado com **pnpm**
+- **UI:** shadcn/ui (`base-nova`) + Tailwind CSS v4 — tema Ghibli lo‑fi
+- **Estado de servidor no client:** TanStack Query + **ky** (cliente HTTP)
+- **Formulários:** `<form>` nativo + **react-hook-form** + zod
+- **Auth:** Better Auth (email/senha + Google + GitHub)
+- **Banco:** PostgreSQL (Docker em dev) + **Drizzle ORM**
+- **Testes:** Jest
+
+## Arquitetura (resumo)
+
+```
+src/
+  app/
+    (auth)/            rotas de autenticação (login, register)
+    (protected)/       rotas protegidas (timer, stats, settings)
+    providers/         providers de client (TanStack Query)
+    api/               route handlers (finos, via controller)
+  components/          UI por domínio (+ ui/, shared/)
+  hooks/               hooks de client
+  queries/             TanStack Query (queries, mutations, fetchers) por entidade
+  lib/                 configs de pacotes (auth, env, ky, utils, validations/)
+  utils/               funções puras/globais + testes
+  server/              somente servidor
+    db/ errors/ controller/ auth/ model/ service/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Detalhes em `docs/superpowers/specs/2026-07-26-ghibli-restructure-design.md`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Contrato de erro da API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Todo route handler é embrulhado por `RouteController` (`src/server/controller`).
+Erros estendem `ApiError` (que estende `Error`) e respondem com:
 
-## Learn More
+```json
+{ "error": { "code": "unauthorized", "message": "…", "action": "Faça login para continuar." } }
+```
 
-To learn more about Next.js, take a look at the following resources:
+O campo **`action`** direciona o usuário a um próximo passo e é exibido no toast
+(via `showErrorToast`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Rodando localmente
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# 1. Suba o Postgres
+docker compose up -d
 
-## Deploy on Vercel
+# 2. Configure o ambiente
+cp .env.example .env    # e preencha as chaves
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 3. Instale as dependências e aplique o schema
+pnpm install
+pnpm db:push
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 4. Rode o dev server
+pnpm dev                # http://127.0.0.1:3000
+```
+
+> ⚠️ Acesse sempre por **`http://127.0.0.1:3000`** (o dev server sobe com
+> `-H 127.0.0.1`). O Spotify não aceita mais `localhost` como redirect, e
+> cookies são por-host: abrir por `localhost` quebra a sessão e o OAuth.
+
+### Variáveis de ambiente
+
+Veja `.env.example`. Para **login social** com Google/GitHub, crie um OAuth App em
+cada provedor e preencha `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` e
+`GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET`. O callback do GitHub é
+`http://127.0.0.1:3000/api/auth/callback/github`.
+
+> ⚠️ Um *fingerprint* SSH (`SHA256:…`) **não** é uma credencial de OAuth — as chaves
+> `CLIENT_ID`/`CLIENT_SECRET` vêm do OAuth App do provedor.
+
+## Scripts
+
+```bash
+pnpm dev          # dev server
+pnpm build        # build de produção
+pnpm start        # servir o build
+pnpm lint         # eslint
+pnpm test         # jest
+pnpm db:push      # aplica o schema no banco
+pnpm db:generate  # gera migrations
+pnpm db:migrate   # aplica migrations
+```
