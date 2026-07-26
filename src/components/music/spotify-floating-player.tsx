@@ -14,7 +14,7 @@ export function SpotifyFloatingPlayer() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+    <div className="fixed bottom-2 right-1 sm:bottom-4 sm:right-4 z-50 flex flex-col items-end gap-2">
       {/* Card completo — sempre montado; escondido quando recolhido. */}
       <div
         className={`relative w-[min(92vw,26rem)] rounded-xl shadow-2xl ${
@@ -39,7 +39,7 @@ export function SpotifyFloatingPlayer() {
         <Button
           type="button"
           aria-label="Abrir player do Spotify"
-          className="spotify-bubble h-12 w-12 rounded-full text-lg shadow-lg"
+          className="spotify-bubble size-8 text-sm sm:size-12 rounded-full sm:text-lg shadow-lg"
           onClick={() => setOpen(true)}
         >
           🎵
