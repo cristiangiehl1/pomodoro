@@ -1,70 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/get-session";
-import { db } from "@/db/client";
-import { tasks } from "@/db/schema/tasks";
-import { eq, and } from "drizzle-orm";
-import { updateTaskSchema } from "@/features/tasks/schemas";
+import { NextResponse } from "next/server";
+import { route } from "@/server/controller/route-controller";
+import { readJson } from "@/server/controller/read-json";
+import { requireUserId } from "@/server/auth/require-user-id";
+import { NotFoundError } from "@/server/errors";
+import { TaskModel } from "@/server/model/task.model";
+import { updateTaskSchema } from "@/lib/validations/task";
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+type Context = { params: Promise<{ id: string }> };
 
-  const userId = session.user.id;
+export const PATCH = route<Context>(async (request, { params }) => {
+  const userId = await requireUserId();
   const { id } = await params;
+  const patch = updateTaskSchema.parse(await readJson(request));
+  const updated = await new TaskModel().update(userId, id, patch);
+  if (!updated) throw new NotFoundError("Tarefa não encontrada.");
+  return NextResponse.json(updated);
+});
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
-
-  const parsed = updateTaskSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Validation failed", issues: parsed.error.issues },
-      { status: 400 }
-    );
-  }
-
-  const updated = await db
-    .update(tasks)
-    .set(parsed.data)
-    .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))
-    .returning();
-
-  if (updated.length === 0) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  return NextResponse.json(updated[0]);
-}
-
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = session.user.id;
+export const DELETE = route<Context>(async (_request, { params }) => {
+  const userId = await requireUserId();
   const { id } = await params;
-
-  const deleted = await db
-    .delete(tasks)
-    .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))
-    .returning();
-
-  if (deleted.length === 0) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
+  const ok = await new TaskModel().delete(userId, id);
+  if (!ok) throw new NotFoundError("Tarefa não encontrada.");
   return NextResponse.json({ ok: true });
-}
+});

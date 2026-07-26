@@ -1,68 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/get-session";
-import { db } from "@/db/client";
-import { tasks } from "@/db/schema/tasks";
-import { eq, asc, max } from "drizzle-orm";
-import { createTaskSchema } from "@/features/tasks/schemas";
+import { NextResponse } from "next/server";
+import { route } from "@/server/controller/route-controller";
+import { readJson } from "@/server/controller/read-json";
+import { requireUserId } from "@/server/auth/require-user-id";
+import { TaskModel } from "@/server/model/task.model";
+import { createTaskSchema } from "@/lib/validations/task";
 
-export async function GET() {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = session.user.id;
-
-  const rows = await db
-    .select()
-    .from(tasks)
-    .where(eq(tasks.userId, userId))
-    .orderBy(asc(tasks.position), asc(tasks.createdAt));
-
+export const GET = route(async () => {
+  const userId = await requireUserId();
+  const rows = await new TaskModel().findByUser(userId);
   return NextResponse.json(rows);
-}
+});
 
-export async function POST(request: NextRequest) {
-  const session = await getSession();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = session.user.id;
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
-
-  const parsed = createTaskSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Validation failed", issues: parsed.error.issues },
-      { status: 400 }
-    );
-  }
-
-  const [maxRow] = await db
-    .select({ maxPosition: max(tasks.position) })
-    .from(tasks)
-    .where(eq(tasks.userId, userId));
-
-  const position = maxRow?.maxPosition != null ? maxRow.maxPosition + 1 : 0;
-
-  const inserted = await db
-    .insert(tasks)
-    .values({
-      userId,
-      title: parsed.data.title,
-      estimatedPomodoros: parsed.data.estimatedPomodoros,
-      done: false,
-      completedPomodoros: 0,
-      position,
-    })
-    .returning();
-
-  return NextResponse.json(inserted[0], { status: 201 });
-}
+export const POST = route(async (request) => {
+  const userId = await requireUserId();
+  const input = createTaskSchema.parse(await readJson(request));
+  const task = await new TaskModel().create(userId, input);
+  return NextResponse.json(task, { status: 201 });
+});
