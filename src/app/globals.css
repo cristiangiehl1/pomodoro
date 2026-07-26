@@ -7,9 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,84 +49,51 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* ─── Synthwave palette (raw hex/rgb for use in box-shadow, text-shadow etc.) ─── */
-:root {
-  --sw-bg: #0d0015;
-  --sw-magenta: #ff2e97;
-  --sw-cyan: #05d9e8;
-  --sw-yellow: #f7e733;
-  --sw-purple-mid: #1a0033;
-  --sw-card-bg: rgba(13, 0, 21, 0.75);
-
-  /* ─── shadcn tokens remapped to synthwave dark ─── */
-  --background: oklch(0.07 0.03 300);          /* near-black purple */
-  --foreground: oklch(0.95 0.02 200);           /* off-white with slight cyan */
-  --card: oklch(0.1 0.04 300);
-  --card-foreground: oklch(0.95 0.02 200);
-  --popover: oklch(0.1 0.04 300);
-  --popover-foreground: oklch(0.95 0.02 200);
-  --primary: oklch(0.65 0.28 330);             /* neon magenta */
-  --primary-foreground: oklch(0.07 0.02 300);
-  --secondary: oklch(0.15 0.05 290);
-  --secondary-foreground: oklch(0.9 0.05 200);
-  --muted: oklch(0.15 0.04 290);
-  --muted-foreground: oklch(0.6 0.05 250);
-  --accent: oklch(0.6 0.22 200);              /* neon cyan */
-  --accent-foreground: oklch(0.07 0.02 300);
-  --destructive: oklch(0.62 0.26 25);
-  --border: oklch(0.3 0.08 260 / 50%);
-  --input: oklch(0.15 0.05 280 / 60%);
-  --ring: oklch(0.65 0.28 330);
-  --chart-1: oklch(0.65 0.28 330);            /* magenta */
-  --chart-2: oklch(0.6 0.22 200);             /* cyan */
-  --chart-3: oklch(0.8 0.22 95);              /* yellow */
-  --chart-4: oklch(0.55 0.2 280);             /* purple */
-  --chart-5: oklch(0.5 0.18 160);             /* teal */
-  --radius: 0.625rem;
-  --sidebar: oklch(0.1 0.04 300);
-  --sidebar-foreground: oklch(0.95 0.02 200);
-  --sidebar-primary: oklch(0.65 0.28 330);
-  --sidebar-primary-foreground: oklch(0.07 0.02 300);
-  --sidebar-accent: oklch(0.15 0.05 290);
-  --sidebar-accent-foreground: oklch(0.9 0.05 200);
-  --sidebar-border: oklch(0.3 0.08 260 / 40%);
-  --sidebar-ring: oklch(0.65 0.28 330);
-}
-
-/* No separate .dark block needed — synthwave is always dark.
-   Keep a .dark alias so shadcn dark-variant utilities still work. */
+/* ─── Paleta "spirit night" — noite quente da casa de banho / castelo andante ──
+   Cores cruas (hex/rgb) para gradientes de cena, brilhos e sombras.            */
+:root,
 .dark {
-  --background: oklch(0.07 0.03 300);
-  --foreground: oklch(0.95 0.02 200);
-  --card: oklch(0.1 0.04 300);
-  --card-foreground: oklch(0.95 0.02 200);
-  --popover: oklch(0.1 0.04 300);
-  --popover-foreground: oklch(0.95 0.02 200);
-  --primary: oklch(0.65 0.28 330);
-  --primary-foreground: oklch(0.07 0.02 300);
-  --secondary: oklch(0.15 0.05 290);
-  --secondary-foreground: oklch(0.9 0.05 200);
-  --muted: oklch(0.15 0.04 290);
-  --muted-foreground: oklch(0.6 0.05 250);
-  --accent: oklch(0.6 0.22 200);
-  --accent-foreground: oklch(0.07 0.02 300);
-  --destructive: oklch(0.62 0.26 25);
-  --border: oklch(0.3 0.08 260 / 50%);
-  --input: oklch(0.15 0.05 280 / 60%);
-  --ring: oklch(0.65 0.28 330);
-  --chart-1: oklch(0.65 0.28 330);
-  --chart-2: oklch(0.6 0.22 200);
-  --chart-3: oklch(0.8 0.22 95);
-  --chart-4: oklch(0.55 0.2 280);
-  --chart-5: oklch(0.5 0.18 160);
-  --sidebar: oklch(0.1 0.04 300);
-  --sidebar-foreground: oklch(0.95 0.02 200);
-  --sidebar-primary: oklch(0.65 0.28 330);
-  --sidebar-primary-foreground: oklch(0.07 0.02 300);
-  --sidebar-accent: oklch(0.15 0.05 290);
-  --sidebar-accent-foreground: oklch(0.9 0.05 200);
-  --sidebar-border: oklch(0.3 0.08 260 / 40%);
-  --sidebar-ring: oklch(0.65 0.28 330);
+  --lantern: #d95a48;          /* vermelho das lanternas de papel */
+  --lantern-glow: 233, 150, 90; /* brilho âmbar quente */
+  --soot: 26, 22, 18;          /* fuligem (susuwatari) */
+  --ember: 255, 196, 130;      /* brasas/estrelas */
+  --night-top: #17120e;        /* topo do céu noturno */
+  --night-horizon: #3a2b22;    /* horizonte quente */
+  --castle: #211a15;           /* silhueta do castelo */
+
+  /* ─── tokens shadcn — noite quente ─── */
+  --background: oklch(0.19 0.018 55);
+  --foreground: oklch(0.9 0.03 82);
+  --card: oklch(0.25 0.022 52);
+  --card-foreground: oklch(0.9 0.03 82);
+  --popover: oklch(0.24 0.022 52);
+  --popover-foreground: oklch(0.9 0.03 82);
+  --primary: oklch(0.77 0.11 68);            /* âmbar de lanterna */
+  --primary-foreground: oklch(0.2 0.02 55);
+  --secondary: oklch(0.46 0.045 168);        /* verde-esmeralda da casa de banho */
+  --secondary-foreground: oklch(0.93 0.03 120);
+  --muted: oklch(0.29 0.02 52);
+  --muted-foreground: oklch(0.73 0.03 78);
+  --accent: oklch(0.62 0.15 33);             /* vermelho-lanterna / terracota */
+  --accent-foreground: oklch(0.95 0.02 85);
+  --destructive: oklch(0.6 0.16 30);
+  --border: oklch(0.36 0.02 55 / 70%);
+  --input: oklch(0.32 0.02 55 / 70%);
+  --ring: oklch(0.77 0.11 68);
+  --chart-1: oklch(0.77 0.11 68);            /* âmbar */
+  --chart-2: oklch(0.58 0.06 168);           /* verde casa de banho */
+  --chart-3: oklch(0.62 0.15 33);            /* vermelho-lanterna */
+  --chart-4: oklch(0.8 0.1 88);              /* ouro */
+  --chart-5: oklch(0.6 0.05 140);            /* sálvia */
+  --radius: 0.85rem;
+  --sidebar: oklch(0.24 0.022 52);
+  --sidebar-foreground: oklch(0.9 0.03 82);
+  --sidebar-primary: oklch(0.77 0.11 68);
+  --sidebar-primary-foreground: oklch(0.2 0.02 55);
+  --sidebar-accent: oklch(0.46 0.045 168);
+  --sidebar-accent-foreground: oklch(0.93 0.03 120);
+  --sidebar-border: oklch(0.36 0.02 55 / 60%);
+  --sidebar-ring: oklch(0.77 0.11 68);
 }
 
 @layer base {
@@ -134,39 +102,154 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-color: #0d0015;
+    background-color: var(--night-top);
   }
   html {
     @apply font-sans;
   }
 }
 
-/* ─── Synthwave utility classes ─── */
+/* ─── Utilitários spirit lo-fi ─── */
 @layer utilities {
-  .neon-text-magenta {
-    color: #ff2e97;
-    text-shadow: 0 0 8px rgba(255, 46, 151, 0.8), 0 0 20px rgba(255, 46, 151, 0.4);
+  .font-display {
+    font-family: var(--font-display), Georgia, "Times New Roman", serif;
   }
-  .neon-text-cyan {
-    color: #05d9e8;
-    text-shadow: 0 0 8px rgba(5, 217, 232, 0.8), 0 0 20px rgba(5, 217, 232, 0.4);
-  }
-  .neon-text-yellow {
-    color: #f7e733;
-    text-shadow: 0 0 8px rgba(247, 231, 51, 0.8), 0 0 20px rgba(247, 231, 51, 0.4);
-  }
-  .neon-glow-magenta {
-    box-shadow: 0 0 12px 2px rgba(255, 46, 151, 0.5);
-  }
-  .neon-glow-cyan {
-    box-shadow: 0 0 12px 2px rgba(5, 217, 232, 0.5);
-  }
-  .neon-glow-yellow {
-    box-shadow: 0 0 12px 2px rgba(247, 231, 51, 0.5);
-  }
-  /* Timer display font — use monospace stack */
   .font-timer {
-    font-family: "Geist Mono", "Courier New", ui-monospace, monospace;
+    font-family: var(--font-display), Georgia, serif;
     font-variant-numeric: tabular-nums;
   }
+  /* Sombra macia, pintada */
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 16px 40px -16px rgba(0, 0, 0, 0.6);
+  }
+  /* Brilho quente de lanterna */
+  .glow-lantern {
+    box-shadow: 0 0 24px 4px rgba(var(--lantern-glow), 0.45);
+  }
+  /* Textura de grão sutil, sobreposta */
+  .grain-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ─── Animações de ambiente ─── */
+@keyframes ghibli-drift {
+  from {
+    transform: translateX(-12%);
+  }
+  to {
+    transform: translateX(112%);
+  }
+}
+
+@keyframes ghibli-float {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  88% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-88vh) translateX(28px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes ghibli-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes ghibli-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes ghibli-puff {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-40px) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Castelo "esteira infinita": atravessa a tela da esquerda p/ a direita e
+   reaparece pela esquerda. Só anima enquanto o timer está rodando. */
+@keyframes castle-march {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100vw);
+  }
+}
+
+html[data-timer-running="true"] .walking-castle {
+  /* começa colado na extrema esquerda (translateX 0 + left-0) e cruza a tela. */
+  animation: castle-march 20s linear infinite;
+}
+
+/* Spritesheet do castelo (grid 6×4, células uniformes). Dois passos sincronizados:
+   - colunas: 6 frames por varredura (0%→120% em steps(6) => 0/20/40/60/80/100%);
+   - linhas: avança 1 a cada varredura de colunas (0%→133.33% em steps(4)).
+   Full cycle = 24 frames. Parado, permanece no frame 0 (background-position 0 0). */
+@keyframes castle-cols {
+  to {
+    background-position-x: 120%;
+  }
+}
+@keyframes castle-rows {
+  to {
+    background-position-y: 133.334%;
+  }
+}
+html[data-timer-running="true"] .castle-sprite {
+  /* ~110ms/frame: colunas 6×0.11s, linhas 24×0.11s (=4× a duração das colunas). */
+  animation:
+    castle-cols 0.66s steps(6) infinite,
+    castle-rows 2.64s steps(4) infinite;
+}
+
+/* Bolha do player do Spotify pulsando quando há música tocando. */
+@keyframes spotify-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 8px rgba(29, 185, 84, 0);
+  }
+}
+
+html[data-spotify-playing="true"] .spotify-bubble {
+  animation: spotify-pulse 1.4s ease-in-out infinite;
 }
