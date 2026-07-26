@@ -34,6 +34,12 @@ export const auth = betterAuth({
       // Permite o vínculo mesmo quando o e-mail da conta local ainda não foi
       // verificado (cadastro por e-mail/senha não faz verificação neste app).
       requireLocalEmailVerified: false,
+      // Permite linkar contas OAuth cujo e-mail difere do e-mail de login
+      // (ex.: logar com Google e conectar um Spotify de outro e-mail). Seguro
+      // aqui porque o Spotify não está em `trustedProviders` — o vínculo só
+      // acontece no fluxo autenticado (`oauth2.link`), onde o usuário já provou
+      // ser dono da sessão.
+      allowDifferentEmails: true,
     },
   },
   plugins: [
