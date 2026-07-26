@@ -10,7 +10,6 @@ const schema = z.object({
   GITHUB_CLIENT_SECRET: z.string().optional(),
   SPOTIFY_CLIENT_ID: z.string().optional(),
   SPOTIFY_CLIENT_SECRET: z.string().optional(),
-  SPOTIFY_REDIRECT_URI: z.url().optional(),
   NEXT_PUBLIC_APP_URL: z.url(),
 });
 
