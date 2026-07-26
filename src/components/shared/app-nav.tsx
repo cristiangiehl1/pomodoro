@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "@/lib/auth-client";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/shared/user-menu";
 
 const navLinks = [
   { href: "/", label: "Timer" },
@@ -14,28 +14,21 @@ const navLinks = [
 
 export function AppNav() {
   const pathname = usePathname();
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="relative z-20 flex items-center justify-between px-4 py-3 sm:px-6">
-      {/* Logo / title */}
+    <header className="relative z-20 flex items-center justify-between border-b border-border/60 bg-card/60 px-4 py-3 backdrop-blur-md sm:px-6">
+      {/* Marca */}
       <Link
         href="/"
-        className="flex items-center gap-2 text-lg font-bold tracking-widest uppercase select-none"
-        style={{
-          color: "#ff2e97",
-          textShadow: "0 0 8px rgba(255,46,151,0.7), 0 0 20px rgba(255,46,151,0.4)",
-        }}
+        className="flex select-none items-center gap-2 font-display text-lg font-semibold text-foreground"
       >
-        <span aria-hidden="true" className="text-[#05d9e8]" style={{
-          textShadow: "0 0 8px rgba(5,217,232,0.7)",
-        }}>▶</span>
+        <span aria-hidden="true">🍃</span>
         Pomodoro Lo‑Fi
       </Link>
 
-      {/* Desktop nav links */}
-      <nav className="hidden sm:flex items-center gap-6">
+      {/* Navegação — desktop */}
+      <nav className="hidden items-center gap-6 sm:flex">
         {navLinks.map(({ href, label }) => {
           const isActive = pathname === href;
           return (
@@ -43,16 +36,11 @@ export function AppNav() {
               key={href}
               href={href}
               className={cn(
-                "text-sm font-medium tracking-wide transition-all duration-200",
+                "text-sm font-medium tracking-wide transition-colors",
                 isActive
-                  ? "text-[#05d9e8]"
-                  : "text-[rgba(255,255,255,0.6)] hover:text-[#05d9e8]"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground",
               )}
-              style={
-                isActive
-                  ? { textShadow: "0 0 8px rgba(5,217,232,0.8)" }
-                  : undefined
-              }
             >
               {label}
             </Link>
@@ -60,54 +48,40 @@ export function AppNav() {
         })}
       </nav>
 
-      {/* Right side: hamburger (mobile) + sign out */}
+      {/* Lado direito: hambúrguer (mobile) + menu do usuário */}
       <div className="flex items-center gap-3">
-        {/* Hamburger button — mobile only */}
         <button
-          className="sm:hidden flex flex-col justify-center items-center gap-[5px] w-8 h-8 cursor-pointer"
+          className="flex h-8 w-8 cursor-pointer flex-col items-center justify-center gap-[5px] sm:hidden"
           aria-label="Abrir menu de navegação"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((prev) => !prev)}
         >
           <span
             className={cn(
-              "block h-0.5 w-5 transition-all duration-200",
-              menuOpen ? "rotate-45 translate-y-[7px] bg-[#ff2e97]" : "bg-[rgba(255,255,255,0.7)]"
+              "block h-0.5 w-5 bg-foreground/70 transition-all duration-200",
+              menuOpen && "translate-y-[7px] rotate-45",
             )}
           />
           <span
             className={cn(
-              "block h-0.5 w-5 transition-all duration-200",
-              menuOpen ? "opacity-0" : "bg-[rgba(255,255,255,0.7)]"
+              "block h-0.5 w-5 bg-foreground/70 transition-all duration-200",
+              menuOpen && "opacity-0",
             )}
           />
           <span
             className={cn(
-              "block h-0.5 w-5 transition-all duration-200",
-              menuOpen ? "-rotate-45 -translate-y-[7px] bg-[#ff2e97]" : "bg-[rgba(255,255,255,0.7)]"
+              "block h-0.5 w-5 bg-foreground/70 transition-all duration-200",
+              menuOpen && "-translate-y-1.75 -rotate-45",
             )}
           />
         </button>
 
-        {/* Sign out */}
-        <button
-          onClick={async () => { await signOut(); router.push("/login"); }}
-          className="text-sm font-medium text-[rgba(255,255,255,0.5)] hover:text-[#ff2e97] transition-colors duration-200 cursor-pointer"
-        >
-          Sair
-        </button>
+        <UserMenu />
       </div>
 
-      {/* Mobile dropdown menu */}
+      {/* Menu dropdown — mobile */}
       {menuOpen && (
-        <nav
-          className="sm:hidden absolute top-full left-0 right-0 z-30 flex flex-col gap-1 px-4 py-3"
-          style={{
-            background: "rgba(10,5,20,0.97)",
-            borderBottom: "1px solid rgba(255,46,151,0.3)",
-            boxShadow: "0 4px 24px rgba(255,46,151,0.15)",
-          }}
-        >
+        <nav className="absolute left-0 right-0 top-full z-30 flex flex-col gap-1 border-b border-border/60 bg-card/95 px-4 py-3 shadow-soft backdrop-blur-md sm:hidden">
           {navLinks.map(({ href, label }) => {
             const isActive = pathname === href;
             return (
@@ -116,16 +90,11 @@ export function AppNav() {
                 href={href}
                 onClick={() => setMenuOpen(false)}
                 className={cn(
-                  "py-2 px-2 text-sm font-medium tracking-wide transition-all duration-200 rounded",
+                  "rounded-lg px-2 py-2 text-sm font-medium tracking-wide transition-colors",
                   isActive
-                    ? "text-[#05d9e8]"
-                    : "text-[rgba(255,255,255,0.6)] hover:text-[#05d9e8]"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
-                style={
-                  isActive
-                    ? { textShadow: "0 0 8px rgba(5,217,232,0.8)" }
-                    : undefined
-                }
               >
                 {label}
               </Link>
