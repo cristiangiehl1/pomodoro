@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { AtmosphereScene } from "@/components/shared/atmosphere-scene";
 import { AppNav } from "@/components/shared/app-nav";
 import { SpotifyFloatingPlayer } from "@/components/music/spotify-floating-player";
+import { SpotifyLinkErrorToaster } from "@/components/music/spotify-link-error-toaster";
 
 /**
  * Shell das rotas protegidas — ambientação Ghibli lo-fi compartilhada
@@ -17,6 +19,9 @@ export default function ProtectedLayout({
       <AppNav />
       {children}
       <SpotifyFloatingPlayer />
+      <Suspense fallback={null}>
+        <SpotifyLinkErrorToaster />
+      </Suspense>
     </div>
   );
 }

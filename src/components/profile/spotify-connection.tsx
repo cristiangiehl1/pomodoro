@@ -48,6 +48,7 @@ export function SpotifyConnection() {
               authClient.oauth2.link({
                 providerId: "spotify",
                 callbackURL: "/profile",
+                errorCallbackURL: "/profile",
               })
             }
           >

@@ -17,7 +17,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /** Inicia o fluxo OAuth para linkar/re-autorizar a conta do Spotify. */
 function linkSpotify() {
-  authClient.oauth2.link({ providerId: "spotify", callbackURL: "/" });
+  authClient.oauth2.link({
+    providerId: "spotify",
+    callbackURL: "/",
+    errorCallbackURL: "/",
+  });
 }
 
 // Tipos mínimos do Spotify Web Playback SDK
